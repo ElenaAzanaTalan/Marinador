@@ -1,212 +1,94 @@
-
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Marinador</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
-body{background:#dfe8ff;display:flex;justify-content:center;padding:20px}
-.phone{width:390px;min-height:830px;background:#f7f9ff;border-radius:30px;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,.2);position:relative}
-header{background:linear-gradient(135deg,#5B7CFF,#7ED6FF);padding:18px;color:#fff;display:flex;align-items:center;gap:15px}
-header img{width:85px;height:85px;border-radius:50%;object-fit:cover;border:3px solid #fff}
-header h1{font-size:28px}
-.hero{padding:18px}
-.hero h2{color:#2F4FB8}
-#contenido{padding:0 15px 90px}
-.card{background:#fff;border-radius:18px;padding:14px;margin-bottom:12px;box-shadow:0 4px 12px rgba(0,0,0,.08)}
-.badge{display:inline-block;background:#E8EEFF;color:#3454C8;padding:4px 10px;border-radius:20px;font-size:11px;margin-bottom:8px}
-.fab{position:absolute;bottom:78px;left:50%;transform:translateX(-50%);width:86%;background:#5577FF;color:#fff;border:none;padding:15px;border-radius:30px;font-size:18px}
-nav{position:absolute;bottom:0;width:100%;height:70px;background:#fff;border-top:1px solid #ddd;display:flex}
-nav button{flex:1;border:none;background:none;font-size:11px}
-nav span{display:block;font-size:22px}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;justify-content:center;align-items:center}
-.box{background:#fff;width:92%;max-width:360px;border-radius:22px;padding:18px;max-height:90vh;overflow:auto}
-label{display:block;margin-top:8px;font-size:13px;color:#555}
-input,select,textarea{width:100%;padding:10px;border-radius:10px;border:1px solid #D8E2FF}
-textarea{height:70px}
-.row{display:flex;gap:8px;margin-top:14px}
-.row button{flex:1;padding:11px;border:none;border-radius:10px}
-.save{background:#5577FF;color:#fff}
-.del{background:#ffdddd}
-</style>
-</head>
-<body>
-
-<div class="phone">
-<header>
-<img src="marina.jpg" onerror="this.src='https://placehold.co/300x300?text=Marina'">
-<div>
-<h1>💙 Marinador</h1>
-<div id="fecha"></div>
-</div>
-</header>
-
-<div class="hero">
-<h2>Hola Marina 🌸</h2>
-<p>Estas son tus actividades de hoy</p>
-</div>
-
-<div id="contenido"></div>
-
-<button class="fab" onclick="abrir()">✨ Añadir</button>
-
-<nav>
-<button onclick="hoy()"><span>🏠</span>Hoy</button>
-<button onclick="calendario()"><span>📅</span>Calendario</button>
-<button onclick="diario()"><span>💬</span>Diario</button>
-<button onclick="historico()"><span>📊</span>Histórico</button>
-</nav>
-</div>
-
-<div class="modal" id="modal">
-<div class="box">
-<h2>Marinador 💙</h2>
-
-<label>Tipo</label>
-<select id="tipo" onchange="preguntas()">
-<option value="">Selecciona…</option>
-<option>📚 Deberes</option>
-<option>📝 Examen</option>
-<option>⚽ Partido</option>
-<option>🏃 Entrenamiento</option>
-<option>👭 Quedada</option>
-<option>🩺 Médico</option>
-<option>✈️ Vacaciones</option>
-</select>
-
-<label>Fecha</label>
-<input type="date" id="f">
-
-<label>Hora</label>
-<input type="time" id="h">
-
-<div id="campos"></div>
-
-<div class="row">
-<button class="save" onclick="guardar()">Guardar</button>
-<button onclick="cerrar()">Cancelar</button>
-</div>
-</div>
-</div>
-
-<script>
-const cont=document.getElementById("contenido");
-const modal=document.getElementById("modal");
-let eventos=JSON.parse(localStorage.getItem("marinador_eventos"))||[];
-let diarioData=JSON.parse(localStorage.getItem("marinador_diario"))||[];
-let edit=-1;
-
-document.getElementById("fecha").innerText=
-new Date().toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long"});
-
-function abrir(i=-1){
- edit=i;
- modal.style.display="flex";
- document.getElementById("f").value=new Date().toISOString().split("T")[0];
- document.getElementById("h").value="18:00";
- document.getElementById("tipo").value="";
- document.getElementById("campos").innerHTML="";
- if(i>=0){
-   const e=eventos[i];
-   tipo.value=e.tipo;f.value=e.fecha;h.value=e.hora;preguntas();
-   Object.keys(e.data).forEach((k,n)=>{const inp=document.getElementById("c"+n);if(inp)inp.value=e.data[k]})
- }
-}
-function cerrar(){modal.style.display="none"}
-
-function preguntas(){
- const t=tipo.value,c=document.getElementById("campos");
- if(t=="📚 Deberes") c.innerHTML=`<label>¿De qué asignatura?</label><input id=c0><label>¿Qué deberes tienes?</label><input id=c1><label>¿Cuándo lo entregas?</label><input type=date id=c2>`;
- if(t=="📝 Examen") c.innerHTML=`<label>¿De qué asignatura?</label><input id=c0><label>Nota del examen</label><input id=c1 placeholder="8,5">`;
- if(t=="⚽ Partido") c.innerHTML=`<label>¿Dónde es?</label><input id=c0><label>¿Contra quién juegas?</label><input id=c1><label>¿Qué resultado has tenido?</label><input id=c2 placeholder="3-1">`;
- if(t=="🏃 Entrenamiento") c.innerHTML=`<label>¿Dónde entrenas?</label><input id=c0>`;
- if(t=="👭 Quedada") c.innerHTML=`<label>¿Con quién has quedado?</label><input id=c0><label>¿Dónde vais?</label><input id=c1>`;
- if(t=="🩺 Médico") c.innerHTML=`<label>¿Dónde es?</label><input id=c0><label>¿Qué especialista?</label><input id=c1>`;
- if(t=="✈️ Vacaciones") c.innerHTML=`<label>¿Dónde te vas?</label><input id=c0><label>¿Cuándo vuelves?</label><input type=date id=c1>`;
-}
-
-function guardar(){
- const t=tipo.value;
- const d={};
- [...document.querySelectorAll("#campos input")].forEach((x,i)=>d["v"+i]=x.value);
- const e={tipo:t,fecha:f.value,hora:h.value,data:d};
- if(edit>=0) eventos[edit]=e; else eventos.push(e);
- localStorage.setItem("marinador_eventos",JSON.stringify(eventos));
- cerrar(); hoy();
-}
-
-function texto(e){
- const d=e.data;
- switch(e.tipo){
-  case "📚 Deberes":return `<b>${d.v0}</b><br>${d.v1}<br>📅 Entrega: ${d.v2}`;
-  case "📝 Examen":return `<b>${d.v0}</b><br>⭐ Nota: ${d.v1||"Pendiente"}`;
-  case "⚽ Partido":return `📍 ${d.v0}<br>⚽ ${d.v1}<br>🏆 ${d.v2||"Pendiente"}`;
-  case "🏃 Entrenamiento":return `📍 ${d.v0}`;
-  case "👭 Quedada":return `👤 ${d.v0}<br>📍 ${d.v1}`;
-  case "🩺 Médico":return `🏥 ${d.v0}<br>👨‍⚕️ ${d.v1}`;
-  case "✈️ Vacaciones":return `🌍 ${d.v0}<br>↩️ ${d.v1}`;
- }
- return "";
-}
-
-function pintar(arr){
- cont.innerHTML="";
- if(!arr.length){cont.innerHTML="<div class='card'><h3>🌸 Día libre</h3>No tienes actividades.</div>";return;}
- arr.forEach((e,i)=>{
-  cont.innerHTML+=`<div class="card" onclick="abrir(${i})">
-   <div class="badge">${e.tipo}</div>
-   <h3>${e.fecha} · ${e.hora}</h3>
-   <p>${texto(e)}</p>
-   <div class="row">
-    <button onclick="event.stopPropagation();abrir(${i})">✏️ Editar</button>
-    <button class="del" onclick="event.stopPropagation();borrar(${i})">🗑️</button>
-   </div>
-  </div>`
- })
-}
-
-function borrar(i){
- if(confirm("¿Eliminar este evento?")){
-   eventos.splice(i,1);
-   localStorage.setItem("marinador_eventos",JSON.stringify(eventos));
-   hoy();
- }
-}
-
-function hoy(){
- const h=new Date().toISOString().split("T")[0];
- pintar(eventos.filter(e=>e.fecha==h));
-}
 function calendario(){
- pintar([...eventos].sort((a,b)=>(a.fecha+a.hora).localeCompare(b.fecha+b.hora)));
-}
-function historico(){
- pintar([...eventos].sort((a,b)=>(b.fecha+b.hora).localeCompare(a.fecha+b.hora)));
-}
-function diario(){
- const h=new Date().toISOString().split("T")[0];
- let d=diarioData.find(x=>x.fecha==h)||{lectura:"",estado:"😊",nota:""};
- cont.innerHTML=`<div class="card">
- <h3>📖 ¿Cuánto has leído hoy?</h3>
- <input id=l value="${d.lectura}" placeholder="30 minutos">
- <h3 style="margin-top:12px">😊 ¿Qué tal te encuentras?</h3>
- <select id=s><option>😢</option><option>😕</option><option>😐</option><option selected>${d.estado}</option><option>😍</option></select>
- <h3 style="margin-top:12px">💬 Cuéntame tu día</h3>
- <textarea id=n>${d.nota}</textarea>
- <button class="save" style="width:100%;margin-top:14px" onclick="guardarDiario()">Guardar mi día</button>
- </div>`;
-}
-function guardarDiario(){
- const h=new Date().toISOString().split("T")[0];
- diarioData=diarioData.filter(x=>x.fecha!=h);
- diarioData.push({fecha:h,lectura:l.value,estado:s.value,nota:n.value});
- localStorage.setItem("marinador_diario",JSON.stringify(diarioData));
- alert("¡Guardado!");
-}
-hoy();
-</script>
 
-</body>
-</html>
+  const hoy = new Date();
+  const año = hoy.getFullYear();
+  const mes = hoy.getMonth();
+
+  const nombres = ["L","M","X","J","V","S","D"];
+  const primerDia = new Date(año, mes, 1);
+
+  let inicio = primerDia.getDay();
+  inicio = inicio === 0 ? 6 : inicio - 1;
+
+  const diasMes = new Date(año, mes + 1, 0).getDate();
+
+  let html = `
+    <h2 style="color:#3454C8;margin-bottom:15px">
+      📅 ${hoy.toLocaleDateString("es-ES",{month:"long",year:"numeric"})}
+    </h2>
+
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;">
+  `;
+
+  nombres.forEach(d=>{
+    html += `<div style="text-align:center;font-weight:bold;color:#666">${d}</div>`;
+  });
+
+  for(let i=0;i<inicio;i++){
+    html += `<div></div>`;
+  }
+
+  for(let d=1; d<=diasMes; d++){
+
+    const fecha = `${año}-${String(mes+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+
+    const tiene = eventos.filter(e=>e.fecha===fecha).length>0;
+
+    html += `
+      <div onclick="verDia('${fecha}')"
+      style="
+      background:white;
+      border-radius:12px;
+      padding:8px;
+      text-align:center;
+      cursor:pointer;
+      min-height:52px;
+      box-shadow:0 2px 6px rgba(0,0,0,.06);
+      ">
+        <div>${d}</div>
+        ${tiene ? "<div style='width:8px;height:8px;background:#FF4F81;border-radius:50%;margin:6px auto 0'></div>" : ""}
+      </div>
+    `;
+  }
+
+  html += `</div><div id="detalleDia" style="margin-top:18px"></div>`;
+
+  cont.innerHTML = html;
+}
+
+function verDia(fecha){
+
+  const lista = eventos.filter(e=>e.fecha===fecha);
+
+  let html = `<h3 style="margin-bottom:10px">${fecha}</h3>`;
+
+  if(lista.length===0){
+    html += `
+      <div class="card">
+        No tienes actividades este día 🌸
+      </div>`;
+  }else{
+
+    lista.forEach((e,idx)=>{
+
+      html += `
+      <div class="card">
+
+        <div class="badge">${e.tipo}</div>
+
+        <h3>${e.hora}</h3>
+
+        <p>${texto(e)}</p>
+
+        <div class="row">
+          <button onclick="abrir(${eventos.indexOf(e)})">✏️ Editar</button>
+          <button class="del" onclick="borrar(${eventos.indexOf(e)})">🗑️</button>
+        </div>
+
+      </div>`;
+    });
+
+  }
+
+  document.getElementById("detalleDia").innerHTML = html;
+}
