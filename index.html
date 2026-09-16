@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Marinador</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif}
+body{background:#dfe8ff;display:flex;justify-content:center;padding:20px}
+.phone{width:390px;min-height:830px;background:#f7f9ff;border-radius:32px;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,.25);position:relative}
+header{background:linear-gradient(135deg,#5577ff,#7ed8ff);padding:20px;display:flex;align-items:center;gap:15px;color:#fff}
+header img{width:95px;height:95px;border-radius:50%;object-fit:cover;border:4px solid #fff}
+header h1{font-size:30px}
+#fecha{font-size:13px;opacity:.95}
+.hero{padding:18px}
+.hero h2{color:#3454c8}
+.cards{padding:0 16px 90px}
+.card{background:#fff;border-radius:18px;padding:14px;margin-bottom:12px;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.badge{display:inline-block;background:#e8efff;color:#3454c8;padding:4px 10px;border-radius:20px;font-size:11px;margin-bottom:8px}
+.card h3{color:#2948b8;font-size:17px}
+.small{font-size:13px;color:#666;margin-top:4px}
+.fab{position:absolute;left:50%;bottom:78px;transform:translateX(-50%);width:86%;background:#5577ff;color:#fff;border:none;padding:16px;border-radius:30px;font-size:17px}
+nav{position:absolute;bottom:0;width:100%;height:70px;background:#fff;border-top:1px solid #ddd;display:flex}
+nav button{flex:1;border:none;background:none;font-size:11px;color:#555}
+nav span{display:block;font-size:24px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;justify-content:center;align-items:center}
+.box{width:92%;max-width:370px;background:#fff;border-radius:22px;padding:18px}
+.box h2{color:#3454c8;margin-bottom:10px}
+label{display:block;margin-top:8px;font-size:13px;color:#555}
+input,select,textarea{width:100%;padding:10px;border-radius:10px;border:1px solid #d8e2ff;background:#f8fbff}
+textarea{height:60px}
+.row{display:flex;gap:8px;margin-top:14px}
+.row button{flex:1;padding:11px;border:none;border-radius:10px}
+.save{background:#5577ff;color:#fff}
+.cancel{background:#ececec}
+.chat{background:#eef4ff;border-radius:14px;padding:12px;margin-bottom:10px}
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.day{background:#fff;border-radius:10px;padding:8px;text-align:center;min-height:54px;font-size:12px}
+.dot{width:8px;height:8px;background:#ff4f81;border-radius:50%;margin:4px auto 0}
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+<header>
+<img src="marina.jpg" onerror="this.src='https://placehold.co/300x300?text=Marina'">
+<div>
+<h1>💙 Marinador</h1>
+<div id="fecha"></div>
+</div>
+</header>
+
+<section class="hero">
+<h2>Hola Marina 🌸</h2>
+<p>¿Lista para organizar tu día?</p>
+</section>
+
+<div id="contenido" class="cards"></div>
+
+<button class="fab" onclick="abrir()">✨ Añadir actividad</button>
+
+<nav>
+<button onclick="inicio()"><span>🏠</span>Hoy</button>
+<button onclick="calendario()"><span>📅</span>Calendario</button>
+<button onclick="diario()"><span>💬</span>Diario</button>
+<button onclick="historico()"><span>📊</span>Histórico</button>
+</nav>
+
+</div>
+
+<div class="modal" id="modal">
+<div class="box">
+
+<h2>Marinador pregunta 💙</h2>
+
+<label>¿Qué quieres añadir?</label>
+<select id="tipo">
+<option>📚 Deberes</option>
+<option>📝 Examen</option>
+<option>⚽ Entrenamiento</option>
+<option>🏆 Partido</option>
+<option>👭 Quedada</option>
+<option>🩺 Médico</option>
+<option>✈️ Vacaciones</option>
+</select>
+
+<label>¿Qué es?</label>
+<input id="titulo">
+
+<label>Fecha</label>
+<input type="date" id="dia">
+
+<label>Hora</label>
+<input type="time" id="hora">
+
+<label>¿Con quién?</label>
+<input id="persona">
+
+<label>¿Dónde?</label>
+<input id="lugar">
+
+<label>Notas</label>
+<textarea id="notas"></textarea>
+
+<div class="row">
+<button class="save" onclick="guardar()">Guardar</button>
+<button class="cancel" onclick="cerrar()">Cancelar</button>
+</div>
+
+</div>
+</div>
+
+<script>
+const c=document.getElementById("contenido");
+const modal=document.getElementById("modal");
+let eventos=JSON.parse(localStorage.getItem("marinador"))||[];
+let diarioData=JSON.parse(localStorage.getItem("marinador_diario"))||[];
+
+const hoy=new Date();
+document.getElementById("fecha").innerText=hoy.toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long"});
+
+function abrir(){
+modal.style.display="flex";
+dia.value=new Date().toISOString().split("T")[0];
+}
+function cerrar(){modal.style.display="none"}
+
+function guardar(){
+if(!titulo.value){alert("Escribe una actividad");return;}
+eventos.push({
+tipo:tipo.value,
+titulo:titulo.value,
+fecha:dia.value,
+hora:hora.value,
+persona:persona.value,
+lugar:lugar.value,
+notas:notas.value
+});
+localStorage.setItem("marinador",JSON.stringify(eventos));
+modal.style.display="none";
+titulo.value=hora.value=persona.value=lugar.value=notas.value="";
+inicio();
+}
+
+function inicio(){
+const hoyISO=new Date().toISOString().split("T")[0];
+const lista=eventos.filter(e=>e.fecha===hoyISO).sort((a,b)=>a.hora.localeCompare(b.hora));
+c.innerHTML="";
+if(lista.length===0){
+c.innerHTML=`<div class="card"><h3>🌸 Hoy no tienes nada</h3><div class="small">¡Disfruta del día!</div></div>`;
+return;
+}
+lista.forEach(e=>{
+c.innerHTML+=`
+<div class="card">
+<div class="badge">${e.tipo}</div>
+<h3>${e.hora} · ${e.titulo}</h3>
+<div class="small">📍 ${e.lugar||"Sin lugar"}</div>
+<div class="small">👤 ${e.persona||"—"}</div>
+<div class="small">${e.notas||""}</div>
+</div>`;
+});
+}
+
+function calendario(){
+c.innerHTML="<h2 style='color:#3454c8;margin-bottom:12px'>📅 Este mes</h2>";
+const dias=["L","M","X","J","V","S","D"];
+let html="<div class='calendar'>";
+dias.forEach(d=>html+=`<div class='day' style='font-weight:700;background:#eef3ff'>${d}</div>`);
+for(let i=1;i<=31;i++){
+const fecha=new Date().toISOString().slice(0,8)+String(i).padStart(2,"0");
+const tiene=eventos.some(e=>e.fecha===fecha);
+html+=`<div class='day'>${i}${tiene?"<div class='dot'></div>":""}</div>`;
+}
+html+="</div>";
+c.innerHTML+=html;
+}
+
+function diario(){
+const hoyISO=new Date().toISOString().split("T")[0];
+const d=diarioData.find(x=>x.fecha===hoyISO)||{lectura:0,estado:"😊"};
+c.innerHTML=`
+<div class="chat"><strong>Marinador:</strong><br>¿Cuánto has leído hoy? 📖</div>
+<input id="lectura" type="number" value="${d.lectura}" placeholder="Minutos">
+<div class="chat" style="margin-top:12px"><strong>Marinador:</strong><br>¿Qué tal te encuentras hoy? 💙</div>
+<select id="estado">
+<option ${d.estado=="😢"?"selected":""}>😢</option>
+<option ${d.estado=="😕"?"selected":""}>😕</option>
+<option ${d.estado=="😐"?"selected":""}>😐</option>
+<option ${d.estado=="😊"?"selected":""}>😊</option>
+<option ${d.estado=="😍"?"selected":""}>😍</option>
+</select>
+<button class="fab" style="position:static;transform:none;width:100%;margin-top:18px" onclick="guardarDiario()">Guardar mi día</button>`;
+}
+
+function guardarDiario(){
+const hoyISO=new Date().toISOString().split("T")[0];
+const dato={fecha:hoyISO,lectura:+lectura.value,estado:estado.value};
+diarioData=diarioData.filter(x=>x.fecha!==hoyISO);
+diarioData.push(dato);
+localStorage.setItem("marinador_diario",JSON.stringify(diarioData));
+alert("¡Día guardado! 🌸");
+}
+
+function historico(){
+c.innerHTML="<h2 style='color:#3454c8;margin-bottom:12px'>📊 Histórico</h2>";
+const totalLectura=diarioData.reduce((a,b)=>a+b.lectura,0);
+c.innerHTML+=`<div class='card'><h3>📖 Total leído</h3><div style='font-size:28px;color:#3454c8;font-weight:700'>${totalLectura} min</div></div>`;
+[...eventos].sort((a,b)=>b.fecha.localeCompare(a.fecha)).forEach(e=>{
+c.innerHTML+=`
+<div class="card">
+<div class="badge">${e.fecha}</div>
+<h3>${e.titulo}</h3>
+<div class="small">${e.tipo}</div>
+<div class="small">📍 ${e.lugar||""}</div>
+</div>`;
+});
+}
+
+inicio();
+</script>
+
+</body>
+</html>
